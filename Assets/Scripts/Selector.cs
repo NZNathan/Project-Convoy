@@ -27,13 +27,13 @@ public class Selector : MonoBehaviour {
     private void selectObject()
     {
         //Get the camera
-        Camera mainCamera = Camera.main;
+        Camera mainCamera = CameraController.activeCamera;
 
         //Ray variables
         RaycastHit hit = new RaycastHit();
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        Debug.DrawRay(ray.origin, ray.direction * 100, Color.black, 50 );
+        Debug.DrawRay(ray.origin, ray.direction * 20, Color.black, 50 );
 
         if (Physics.Raycast(ray, out hit, 100, selectableMask)) 
         {
@@ -53,18 +53,18 @@ public class Selector : MonoBehaviour {
     /// <summary>
     /// Raycasts and converts the point to the closest grid position, then moves the selected object to that position
     /// </summary>
-    private void selectGrid()
+    private void moveGridPosition()
     {
         //If there is nothing selected, then can't do any actions with right click
         if (selected == null)
             return;
 
         //Get the camera
-        Camera mainCamera = Camera.main;
+        Camera mainCamera = CameraController.activeCamera;
 
         //Ray variables
         RaycastHit hit = new RaycastHit();
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
         Debug.DrawRay(ray.origin, ray.direction * 100, Color.black, 50);
 
@@ -80,6 +80,10 @@ public class Selector : MonoBehaviour {
             //Round point to a grid location
             Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
 
+            //Check if position on the grid is empty, else can't move
+            if (!gridSpaceEmpty(gridPoint))
+                return;
+
             //DEBUG
             //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
             //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
@@ -87,6 +91,13 @@ public class Selector : MonoBehaviour {
             //Move selected Object
             selected.setTargetPosition(gridPoint);
         }
+    }
+
+    public bool gridSpaceEmpty(Vector3 gridPosition)
+    {
+        Debug.DrawRay(gridPosition, Vector3.up * 5, Color.red, 50);
+
+        return !Physics.Raycast(gridPosition, Vector3.up, 5f, selectableMask);
     }
 
     /// <summary>
@@ -113,7 +124,7 @@ public class Selector : MonoBehaviour {
         if (leftClick)
             selectObject();
         if (rightClick)
-            selectGrid();
+            moveGridPosition();
     }
 	
 	// Update is called once per frame

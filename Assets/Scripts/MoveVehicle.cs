@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class MoveVehicle : MonoBehaviour {
 
+    //Movement Variables
+    public float movespeed = 0.1f;
+
+    //Positioning Variables
     private float snapRange = 0.05f;
     private float turnAngle = 20f;
 
@@ -21,7 +25,7 @@ public class MoveVehicle : MonoBehaviour {
         Vector3 dir =  (targetPos - vehicle.transform.position).normalized;
 
         //Move vehicle
-        vehicle.getRigidbody().MovePosition(vehicle.transform.position + (dir * vehicle.movespeed));
+        vehicle.getRigidbody().MovePosition(vehicle.transform.position + (dir * movespeed));
 
         //Check to see if reached targetPosition
         if ((targetPos - vehicle.transform.position).magnitude < snapRange)

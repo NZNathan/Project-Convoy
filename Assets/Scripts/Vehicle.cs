@@ -10,10 +10,11 @@ public class Vehicle : MonoBehaviour {
     private Rigidbody rb;
 
     //Movement Variables
-    public float movespeed = 2f;
     private MoveVehicle movement;
     private Vector3 targetPos;
     private bool moving = false;
+
+    //Attack Variables
 
 	// Use this for initialization
 	void Start ()
