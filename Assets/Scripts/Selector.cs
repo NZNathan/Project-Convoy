@@ -4,40 +4,115 @@ using UnityEngine;
 
 public class Selector : MonoBehaviour {
 
-	// Use this for initialization
-	void Start ()
-    {
-		
-	}
+    //Current object that is selected
+    private GameObject selected; 
 
-    private void checkClick()
+    //Mask to use to raycast to the ground
+    private int groundMask;
+
+    // Use this for initialization
+    void Start()
     {
+        //So ray cast only takes into account the floor quad
+        groundMask = LayerMask.GetMask("Ground");
+    }
+
+    /// <summary>
+    /// Raycasts and sets the hit object as the selected object
+    /// </summary>
+    private void selectObject()
+    {
+        //Get the camera
         Camera mainCamera = Camera.main;
 
-        // We need to actually hit an object
+        //Ray variables
         RaycastHit hit = new RaycastHit();
-
-        Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 newPos = new Vector3(-mousePos.x, mousePos.y, -mousePos.z);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         Debug.DrawRay(ray.origin, ray.direction * 100, Color.black, 50 );
 
         if (Physics.Raycast(ray, out hit, 100)) 
         {
-            Debug.Log(hit.transform.gameObject.name);
+            Debug.Log(hit.transform.gameObject.name + " at (" + ray.origin.x + ", 0, " + ray.origin.z + ")");
+            selected = hit.transform.gameObject;
         }
         else
-            Debug.Log("miss");
+        {
+            //if left clicking nothing unselect what was selected
+            selected = null;
+        }
+    }
+
+    /// <summary>
+    /// Raycasts and converts the point to the closest grid position, then moves the selected object to that position
+    /// </summary>
+    private void selectGrid()
+    {
+        //If there is nothing selected, then can't do any actions with right click
+        if (selected == null)
+            return;
+
+        //Get the camera
+        Camera mainCamera = Camera.main;
+
+        //Ray variables
+        RaycastHit hit = new RaycastHit();
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Debug.DrawRay(ray.origin, ray.direction * 100, Color.black, 50);
+
+        if (Physics.Raycast(ray, out hit, 100, groundMask))
+        {
+            //Get the impact point on the ray to get the position on the ground that was hit
+            Vector3 ground = ray.GetPoint(hit.distance);
+
+            //if point is off grid
+            if (ground.x < 0 || ground.x > GridManager.instance.xBound() || ground.z < 0 || ground.z > GridManager.instance.zBound())
+                return;
+
+            //Round point to a grid location
+            Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
+            
+            //DEBUG
+            //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
+            //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
+
+            //Move selected Object
+            selected.transform.position = gridPoint;
+        }
+    }
+
+    /// <summary>
+    /// Takes a point and rounds it to the nearest odd number
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    private float snapToGird(float point)
+    {
+        point = point - (point % GridManager.instance.tileSize);
+
+        if (Mathf.Floor(point) % GridManager.instance.tileSize == 1)
+            return Mathf.Floor(point);
+
+        //If point alreadyon the grid return it as a int
+        return Mathf.Ceil(point) +1;
+    }
+
+    private void getInput()
+    {
+        bool leftClick = Input.GetMouseButtonDown(0);
+        bool rightClick = Input.GetMouseButtonDown(1);
+
+        if (leftClick)
+            selectObject();
+        if (rightClick)
+            selectGrid();
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        bool leftClick = Input.GetMouseButtonDown(0);
-
-        if (leftClick)
-            checkClick();
-	}
+        getInput();
+    }
 }
 
