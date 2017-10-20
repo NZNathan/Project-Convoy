@@ -5,16 +5,20 @@ using UnityEngine;
 public class Selector : MonoBehaviour {
 
     //Current object that is selected
-    private GameObject selected; 
+    private Vehicle selected;
 
+    private int selectableMask;
     //Mask to use to raycast to the ground
     private int groundMask;
 
     // Use this for initialization
     void Start()
     {
-        //So ray cast only takes into account the floor quad
+        //So raycast only takes into account the floor quad
         groundMask = LayerMask.GetMask("Ground");
+
+        //Mask for raycast on mouse click
+        selectableMask = LayerMask.GetMask("Selectable");
     }
 
     /// <summary>
@@ -31,10 +35,13 @@ public class Selector : MonoBehaviour {
 
         Debug.DrawRay(ray.origin, ray.direction * 100, Color.black, 50 );
 
-        if (Physics.Raycast(ray, out hit, 100)) 
+        if (Physics.Raycast(ray, out hit, 100, selectableMask)) 
         {
             Debug.Log(hit.transform.gameObject.name + " at (" + ray.origin.x + ", 0, " + ray.origin.z + ")");
-            selected = hit.transform.gameObject;
+
+            //Check clicked object is a vehicle
+            if(hit.transform.tag == "Vehicle")
+                selected = hit.transform.gameObject.GetComponent<Vehicle>();
         }
         else
         {
@@ -72,13 +79,13 @@ public class Selector : MonoBehaviour {
 
             //Round point to a grid location
             Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
-            
+
             //DEBUG
             //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
             //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
 
             //Move selected Object
-            selected.transform.position = gridPoint;
+            selected.setTargetPosition(gridPoint);
         }
     }
 
