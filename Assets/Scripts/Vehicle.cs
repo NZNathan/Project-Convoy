@@ -2,25 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//public enum VehicleType { CONVOY, COMBAT };
+
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(MoveVehicle))]
+[RequireComponent(typeof(Moveable))]
 public class Vehicle : MonoBehaviour {
 
     //Components
-    private Rigidbody rb;
+    protected Rigidbody rb;
 
     //Movement Variables
-    private MoveVehicle movement;
-    private Vector3 targetPos;
-    private bool moving = false;
+    private Moveable movement;
+    protected bool moving = false;
 
-    //Attack Variables
+    //Vehicle type
+    protected bool combatable;
+
+    [Header("Health Variables")]
+    public int maxHealth;
+    protected int health;
+    protected bool dead = false;
 
 	// Use this for initialization
-	void Start ()
+	public void Start ()
     {
+        //Get Components
         rb = GetComponent<Rigidbody>();
-        movement = GetComponent<MoveVehicle>();
+        movement = GetComponent<Moveable>();
+
+        //Set Vehicle type
+        combatable = false;
+
+        //Set up stats
+        health = maxHealth;
     }
 
     #region Getters & Setters
@@ -31,10 +45,20 @@ public class Vehicle : MonoBehaviour {
         return rb;
     }
 
+    public bool isDead()
+    {
+        return dead;
+    }
+
+    public bool isCombatable()
+    {
+        return combatable;
+    }
+
     //SETTERS
     public void setTargetPosition(Vector3 newTargetPos)
     {
-        targetPos = newTargetPos;
+        movement.setTargetPosition(newTargetPos);
         moving = true;
     }
 
@@ -50,7 +74,7 @@ public class Vehicle : MonoBehaviour {
     {
         if (moving)
         {
-            movement.moveToGird(this, targetPos);
+            movement.moveToGird(this);
         }
 	}
 }

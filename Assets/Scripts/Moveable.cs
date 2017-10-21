@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveVehicle : MonoBehaviour {
+public class Moveable : MonoBehaviour {
 
     //Movement Variables
     public float movespeed = 0.1f;
 
     //Positioning Variables
+    private Vector3 targetPos;
     private float snapRange = 0.05f;
     private float turnAngle = 20f;
 
@@ -16,16 +17,16 @@ public class MoveVehicle : MonoBehaviour {
     /// </summary>
     /// <param name="vehicle"></param>
     /// <param name="targetPos"></param>
-	public void moveToGird(Vehicle vehicle, Vector3 targetPos)
+	public void moveToGird(Vehicle vehicle)
     {
         //Angle vehicle to turn
-        setAngle(vehicle, targetPos);
+        setAngle(vehicle);
 
         //Get direction and normalize it so the speed is constant over the whole movement
         Vector3 dir =  (targetPos - vehicle.transform.position).normalized;
 
         //Move vehicle
-        vehicle.getRigidbody().MovePosition(vehicle.transform.position + (dir * movespeed));
+        vehicle.getRigidbody().MovePosition(vehicle.transform.position + (dir * Time.deltaTime * movespeed));
 
         //Check to see if reached targetPosition
         if ((targetPos - vehicle.transform.position).magnitude < snapRange)
@@ -39,7 +40,7 @@ public class MoveVehicle : MonoBehaviour {
     /// </summary>
     /// <param name="vehicle"></param>
     /// <param name="targetPos"></param>
-    public void setAngle(Vehicle vehicle, Vector3 targetPos)
+    public void setAngle(Vehicle vehicle)
     {
         //Turning right
         if (targetPos.x > vehicle.transform.position.x + 0.1f)
@@ -73,15 +74,20 @@ public class MoveVehicle : MonoBehaviour {
     /// </summary>
     /// <param name="vehicle"></param>
     /// <param name="targetPos"></param>
-    public void snapPosition(Vehicle vehicle, Vector3 targetPos)
+    public void snapPosition(Vehicle vehicle, Vector3 snapPos)
     {
         //Stop movement
         vehicle.setMoving(false);
 
         //Snap to targetPos
-        vehicle.getRigidbody().position = targetPos;
+        vehicle.getRigidbody().position = snapPos;
 
         //Reset rotation
         vehicle.transform.eulerAngles = new Vector3(0, 0, 0);
+    }
+
+    public void setTargetPosition(Vector3 newPosition)
+    {
+        targetPos = newPosition;
     }
 }

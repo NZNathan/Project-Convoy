@@ -82,14 +82,25 @@ public class Selector : MonoBehaviour {
 
             //Check if position on the grid is empty, else can't move
             if (!gridSpaceEmpty(gridPoint))
-                return;
+            {
+                //Attack the vehicle at grid space if selected is combatable
+                if (selected.isCombatable())
+                {
+                    //Get vehicle at grid point
+                    Vehicle target = getVehicleAt(gridPoint);
 
+                    if(target != null)
+                        ((CombatVehicle)selected).setAttackTarget(target);
+                }
+            }
+            else
+            {
+                //Move selected Object
+                selected.setTargetPosition(gridPoint);
+            }
             //DEBUG
             //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
             //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
-
-            //Move selected Object
-            selected.setTargetPosition(gridPoint);
         }
     }
 
@@ -98,6 +109,25 @@ public class Selector : MonoBehaviour {
         Debug.DrawRay(gridPosition, Vector3.up * 5, Color.red, 50);
 
         return !Physics.Raycast(gridPosition, Vector3.up, 5f, selectableMask);
+    }
+
+    /// <summary>
+    /// Returns the vehicle at the given grid coordinates, or null if empty
+    /// </summary>
+    /// <param name="gridPosition"></param>
+    /// <returns></returns>
+    public Vehicle getVehicleAt(Vector3 gridPosition)
+    {
+        RaycastHit hit = new RaycastHit();
+
+        Debug.DrawRay(gridPosition, Vector3.up * 5, Color.red, 50);
+
+        if(Physics.Raycast(gridPosition, Vector3.up, out hit, 5f, selectableMask))
+        {
+            return hit.transform.gameObject.GetComponent<Vehicle>();
+        }
+
+        return null;
     }
 
     /// <summary>
