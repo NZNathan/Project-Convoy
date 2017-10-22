@@ -25,7 +25,7 @@ public class GridManager : MonoBehaviour {
         }
 
         instance = this;
-    #endregion
+        #endregion
 
     }
 

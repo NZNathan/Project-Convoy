@@ -51,7 +51,7 @@ public class Selector : MonoBehaviour {
     }
 
     /// <summary>
-    /// Raycasts and converts the point to the closest grid position, then moves the selected object to that position
+    /// Raycasts and converts the point clicked to the closest grid position, then moves the selected object to that position
     /// </summary>
     private void moveGridPosition()
     {
@@ -80,27 +80,32 @@ public class Selector : MonoBehaviour {
             //Round point to a grid location
             Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
 
-            //Check if position on the grid is empty, else can't move
-            if (!gridSpaceEmpty(gridPoint))
-            {
-                //Attack the vehicle at grid space if selected is combatable
-                if (selected.isCombatable())
-                {
-                    //Get vehicle at grid point
-                    Vehicle target = getVehicleAt(gridPoint);
-
-                    if(target != null)
-                        ((CombatVehicle)selected).setAttackTarget(target);
-                }
-            }
-            else
-            {
-                //Move selected Object
-                selected.setTargetPosition(gridPoint);
-            }
+            takeAction(gridPoint);
             //DEBUG
             //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
             //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
+        }
+    }
+
+    private void takeAction(Vector3 gridPoint)
+    {
+        //Check if position on the grid is empty, else can't move
+        if (!gridSpaceEmpty(gridPoint))
+        {
+            //Attack the vehicle at grid space if selected is combatable
+            if (selected.isCombatable())
+            {
+                //Get vehicle at grid point
+                Vehicle target = getVehicleAt(gridPoint);
+
+                if (target != null && target != selected)
+                    ((CombatVehicle)selected).setAttackTarget(target);
+            }
+        }
+        else
+        {
+            //Move selected Object
+            selected.setTargetPosition(gridPoint);
         }
     }
 

@@ -35,7 +35,7 @@ public class CombatVehicle : Vehicle {
     #endregion
 
     // Update is called once per frame
-    void Update ()
+    public override void update()
     {
         combatType.attack(this);
 	}

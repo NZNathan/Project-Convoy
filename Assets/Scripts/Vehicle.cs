@@ -6,7 +6,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Moveable))]
-public class Vehicle : MonoBehaviour {
+public class Vehicle : Pauseable {
 
     //Components
     protected Rigidbody rb;
@@ -35,6 +35,21 @@ public class Vehicle : MonoBehaviour {
 
         //Set up stats
         health = maxHealth;
+    }
+
+    public void takeDamage(int damage)
+    {
+        health -= damage;
+
+        if(health <= 0)
+        {
+            death();
+        }
+    }
+
+    protected virtual void death()
+    {
+        Destroy(this.gameObject);
     }
 
     #region Getters & Setters
@@ -69,8 +84,7 @@ public class Vehicle : MonoBehaviour {
 
     #endregion
 
-    // Update is called once per frame
-    void FixedUpdate ()
+    public override void fixedUpdate()
     {
         if (moving)
         {

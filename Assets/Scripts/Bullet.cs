@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Bullet : MonoBehaviour {
+public class Bullet : Pauseable {
 
     //Components
     private Rigidbody rb;
@@ -29,13 +30,15 @@ public class Bullet : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Vehicle")
+        if (other.tag == "Vehicle")
+        {
+            other.GetComponent<Vehicle>().takeDamage(1);
             Destroy(this.gameObject);
+        }
     }
 
-    // Update is called once per frame
-    void FixedUpdate ()
+    public override void fixedUpdate()
     {
         rb.MovePosition(transform.position + transform.forward * Time.deltaTime * moveSpeed);
-	}
+    }
 }

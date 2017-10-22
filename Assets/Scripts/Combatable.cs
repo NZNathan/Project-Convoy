@@ -5,7 +5,7 @@ using UnityEngine;
 public class Combatable : MonoBehaviour {
 
     private Vehicle attackTarget;
-    public float attackSpeed = 3f;
+    public float attackDelay = 3f;
     private float lastAttack = -55f;
 
     private float turretHeight = 0.8f;
@@ -23,11 +23,12 @@ public class Combatable : MonoBehaviour {
         {
             aimAtTarget(vehicle);
 
-            if(lastAttack + attackSpeed < Time.time)
+            //If able to attack because of attack delay
+            if(lastAttack + attackDelay < TimeManager.instance.getTime())
             {
                 //Reset last attack time
-                lastAttack = Time.time;
-                Debug.Log("Dinh");
+                lastAttack = TimeManager.instance.getTime();
+
                 //Create and setup bullet
                 Vector3 spawnPos = new Vector3(transform.position.x, turretHeight, transform.position.z);
                 Bullet bullet = Instantiate(bulletType, spawnPos + (vehicle.turret.transform.forward), Quaternion.identity);
