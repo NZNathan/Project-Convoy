@@ -67,6 +67,9 @@ public class CameraController : MonoBehaviour {
         //Save old y position so we can undo any movement on y axis
         float yPosition = transform.position.y;
 
+        //To keep movement consistant over slower or faster time scales
+        panTranslation /= Time.timeScale;
+
         //Move Camera
         transform.Translate(panTranslation, Space.Self);
 
@@ -94,6 +97,9 @@ public class CameraController : MonoBehaviour {
             var rotation = Vector3.up * Time.deltaTime * rotateSpeed * mouseDelta.x;
             rotation += Vector3.left * Time.deltaTime * rotateSpeed * mouseDelta.y;
 
+            //To keep movement consistant over slower or faster time scales
+            rotation /= Time.timeScale;
+
             //Rotate the wrapper object
             transform.Rotate(rotation, Space.Self);
 
@@ -115,6 +121,9 @@ public class CameraController : MonoBehaviour {
         {
             scroll.y = 0;
         }
+
+        //To keep movement consistant over slower or faster time scales
+        scroll /= Time.timeScale;
 
         //Move Camera
         transform.Translate(scroll, Space.World);

@@ -22,9 +22,24 @@ public class Selector : MonoBehaviour {
     }
 
     /// <summary>
-    /// Raycasts and sets the hit object as the selected object
+    /// Sets the selected vehicle to the vehicle clicked on
     /// </summary>
     private void selectObject()
+    {
+        Vehicle newSelect = raycastForObject();
+        
+        //Only update selected if the new selected is not null
+        if (newSelect != null)
+        {
+            selected = newSelect;
+        }
+    }
+
+    /// <summary>
+    /// Raycasts to the point clicked and returns the vehicle at that point
+    /// </summary>
+    /// <returns></returns>
+    private Vehicle raycastForObject()
     {
         //Get the camera
         Camera mainCamera = CameraController.activeCamera;
@@ -33,32 +48,24 @@ public class Selector : MonoBehaviour {
         RaycastHit hit = new RaycastHit();
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        Debug.DrawRay(ray.origin, ray.direction * 20, Color.black, 50 );
+        Debug.DrawRay(ray.origin, ray.direction * 20, Color.black, 50);
 
-        if (Physics.Raycast(ray, out hit, 100, selectableMask)) 
+        if (Physics.Raycast(ray, out hit, 100, selectableMask))
         {
             Debug.Log(hit.transform.gameObject.name + " at (" + ray.origin.x + ", 0, " + ray.origin.z + ")");
 
             //Check clicked object is a vehicle
-            if(hit.transform.tag == "Vehicle")
-                selected = hit.transform.gameObject.GetComponent<Vehicle>();
+            if (hit.transform.tag == "Vehicle")
+                return hit.transform.gameObject.GetComponent<Vehicle>();
         }
-        else
-        {
-            //if left clicking nothing unselect what was selected
-            selected = null;
-        }
+        return null;
     }
 
     /// <summary>
-    /// Raycasts and converts the point clicked to the closest grid position, then moves the selected object to that position
+    /// Raycasts and converts the point clicked to the closest grid position and returns that position
     /// </summary>
-    private void moveGridPosition()
+    private Vector3 raycastForGrid()
     {
-        //If there is nothing selected, then can't do any actions with right click
-        if (selected == null)
-            return;
-
         //Get the camera
         Camera mainCamera = CameraController.activeCamera;
 
@@ -73,39 +80,52 @@ public class Selector : MonoBehaviour {
             //Get the impact point on the ray to get the position on the ground that was hit
             Vector3 ground = ray.GetPoint(hit.distance);
 
-            //if point is off grid
+            //if point is off the grid then return
             if (ground.x < 0 || ground.x > GridManager.instance.xBound() || ground.z < 0 || ground.z > GridManager.instance.zBound())
-                return;
+                return new Vector3(-1, -1, -1); ;
 
             //Round point to a grid location
             Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
 
-            takeAction(gridPoint);
+            return gridPoint;
             //DEBUG
             //Debug.Log("(" + ground.x + ", " + ground.y + ", " + ground.z + ")");
             //Debug.Log("(" + gridPoint.x + ", " + gridPoint.y + ", " + gridPoint.z + ")");
         }
+
+        return new Vector3(-1,-1,-1);
     }
 
-    private void takeAction(Vector3 gridPoint)
+    private void takeAction()
     {
-        //Check if position on the grid is empty, else can't move
-        if (!gridSpaceEmpty(gridPoint))
+        //If there is no current selected vehicle then can't take an action
+        if (selected != null && !selected.isDead())
         {
-            //Attack the vehicle at grid space if selected is combatable
-            if (selected.isCombatable())
-            {
-                //Get vehicle at grid point
-                Vehicle target = getVehicleAt(gridPoint);
+            Vehicle vehicleClicked = raycastForObject();
 
-                if (target != null && target != selected)
-                    ((CombatVehicle)selected).setAttackTarget(target);
+            //See if player right clicked a Vehicle
+            if (vehicleClicked == null)
+            {
+                //If didn't click a vehicle, instead move the current selected vehicle
+                //Get point on the grid the player clicked
+                Vector3 gridPoint = raycastForGrid();
+
+                //Make sure point is on the grid before moving
+                if (gridPoint != new Vector3(-1, -1, -1))
+                {
+                    //Move selected Object
+                    selected.setTargetPosition(gridPoint);
+                }
             }
-        }
-        else
-        {
-            //Move selected Object
-            selected.setTargetPosition(gridPoint);
+            //If did click a vehicle, then attack the vehicle clicked on
+            else
+            {
+                //Only attack if vehicle is an enemy
+                if (vehicleClicked != selected)
+                {
+                    ((CombatVehicle)selected).setAttackTarget(vehicleClicked);
+                }
+            }
         }
     }
 
@@ -159,7 +179,7 @@ public class Selector : MonoBehaviour {
         if (leftClick)
             selectObject();
         if (rightClick)
-            moveGridPosition();
+            takeAction();
     }
 	
 	// Update is called once per frame

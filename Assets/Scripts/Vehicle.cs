@@ -10,9 +10,12 @@ public class Vehicle : Pauseable {
 
     //Components
     protected Rigidbody rb;
+    private Moveable movement;
+
+    //UI
+    protected VehicleUI vehicleUI;
 
     //Movement Variables
-    private Moveable movement;
     protected bool moving = false;
 
     //Vehicle type
@@ -29,6 +32,10 @@ public class Vehicle : Pauseable {
         //Get Components
         rb = GetComponent<Rigidbody>();
         movement = GetComponent<Moveable>();
+
+        //Create a new UI for the vehicle
+        vehicleUI = UIManager.instance.newVehicleUI(this);
+        vehicleUI.setActive(true);
 
         //Set Vehicle type
         combatable = false;
