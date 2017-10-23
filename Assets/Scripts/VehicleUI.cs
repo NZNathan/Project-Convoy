@@ -6,6 +6,8 @@ public class VehicleUI : MonoBehaviour {
 
     private bool uiOn = false;
 
+    public GameObject uiWrapper;
+
     [Header("Positioning")]
     public float xOffest = 0;
     public float yOffeset = 0;
@@ -15,6 +17,9 @@ public class VehicleUI : MonoBehaviour {
     {
         xOffest = Screen.width * (xOffest / 1920); //Normalize value for screen resolution
         yOffeset = Screen.height * (yOffeset / 1080); //divide by 1920 and 1080 as thats the resolution i built the ui for
+
+        //Turn off ui at start
+        uiWrapper.SetActive(false);
     }
 
     public void setVehicle(Transform vehicle)
@@ -25,15 +30,19 @@ public class VehicleUI : MonoBehaviour {
     public void setActive(bool value)
     {
         uiOn = value;
+        uiWrapper.SetActive(value);
     }
 
     private void Update()
     {
         if (uiOn)
         {
-            Vector3 vehiclePos = CameraController.activeCamera.WorldToScreenPoint(vehicle.position); //TODO: Set it to be above the vehicle
+            float yBounds = vehicle.GetComponent<Collider>().bounds.size.y;
 
-            transform.position = new Vector3(vehiclePos.x + xOffest, vehiclePos.y + yOffeset, vehiclePos.z);
+            Vector3 vehiclePos = vehicle.position;
+            Vector3 uiPos = CameraController.activeCamera.WorldToScreenPoint(new Vector3(vehiclePos.x + xOffest, vehiclePos.y + yBounds + yOffeset, vehiclePos.z)); //TODO: Set it to be above the vehicle
+
+            transform.position = uiPos;
         }
     }
 }

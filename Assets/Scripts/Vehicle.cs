@@ -56,6 +56,7 @@ public class Vehicle : Pauseable {
 
     protected virtual void death()
     {
+        Destroy(vehicleUI.gameObject);
         Destroy(this.gameObject);
     }
 

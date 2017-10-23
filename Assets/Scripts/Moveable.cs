@@ -31,6 +31,7 @@ public class Moveable : MonoBehaviour {
         //Check to see if reached targetPosition
         if ((targetPos - vehicle.transform.position).magnitude < snapRange)
         {
+            GridManager.instance.setWalkable(targetPos, false);
             snapPosition(vehicle, targetPos);
         }
     }
