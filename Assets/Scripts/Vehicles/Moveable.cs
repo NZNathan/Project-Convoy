@@ -8,7 +8,7 @@ public class Moveable : MonoBehaviour {
     public float movespeed = 0.1f;
 
     //Positioning Variables
-    private Node[] targetPositions;
+    private Vector3[] targetPositions;
     private int pathIndex = 0;
     private float snapRange = 0.05f;
     private float turnAngle = 20f;
@@ -28,7 +28,7 @@ public class Moveable : MonoBehaviour {
         }
 
         //Get current point in the path
-        Vector3 targetPos = targetPositions[pathIndex].worldPos;
+        Vector3 targetPos = targetPositions[pathIndex];
 
         //Angle vehicle to turn
         setAngle(vehicle);
@@ -64,7 +64,7 @@ public class Moveable : MonoBehaviour {
     public void setAngle(Vehicle vehicle)
     {
         //Get current point in the path
-        Vector3 targetPos = targetPositions[pathIndex].worldPos;
+        Vector3 targetPos = targetPositions[pathIndex];
 
         //Turning right
         if (targetPos.x > vehicle.transform.position.x + 0.1f)
@@ -119,17 +119,17 @@ public class Moveable : MonoBehaviour {
         Vector3 startPoint = GridManager.instance.snapToGrid(transform.position);
         Vector3 endPoint = GridManager.instance.snapToGrid(newPosition);
 
-        List<Node> path = Pathfinding.FindPath(startPoint, endPoint);
+        Vector3[] path = Pathfinding.FindPath(startPoint, endPoint);
 
         if (path != null)
         {
             GridManager.instance.setWalkable(startPoint, true);
-            targetPositions = path.ToArray();
+            targetPositions = path;
             pathIndex = 0;
         }
         else
         {
-            targetPositions = new Node[0];
+            targetPositions = new Vector3[0];
         }
     }
 }

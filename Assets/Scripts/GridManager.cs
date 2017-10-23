@@ -181,7 +181,7 @@ public class GridManager : MonoBehaviour {
         return neighbours;
     }
 
-    public List<Node> path;
+    public Vector3[] path;
     private void OnDrawGizmos()
     {
         if(grid != null)
@@ -191,13 +191,20 @@ public class GridManager : MonoBehaviour {
                 //If walkabel set color to white, else set color to red
                 Gizmos.color = (n.walkable) ? Color.white : Color.red;
 
-                if(path != null && path.Contains(n))
-                {
-                    Gizmos.color = Color.black;
-                }
-
                 //Draw gizmo cube slightly smaller to get a gap between each grid point
                 Gizmos.DrawCube(n.worldPos, new Vector3(tileSize - 0.1f, 0.1f, tileSize - 0.1f) );
+            }
+        }
+
+        if (path != null)
+        {
+            foreach (Vector3 pos in path)
+            {
+
+               Gizmos.color = Color.black;
+
+                //Draw gizmo cube slightly smaller to get a gap between each grid point
+                Gizmos.DrawCube(pos, new Vector3(tileSize - 0.1f, 0.1f, tileSize - 0.1f));
             }
         }
     }

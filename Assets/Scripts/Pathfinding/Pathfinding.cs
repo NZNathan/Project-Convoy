@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 public class Pathfinding : MonoBehaviour {
 
-    public static List<Node> FindPath(Vector3 startPos, Vector3 endPos)
+    public static Vector3[] FindPath(Vector3 startPos, Vector3 endPos)
     {
         //DEBUG
         Stopwatch sw = new Stopwatch();
@@ -60,19 +60,45 @@ public class Pathfinding : MonoBehaviour {
         return null;
     }
 
-    private static List<Node> retracePath(Node startNode, Node endNode)
+    private static Vector3[] retracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
         Node currentNode = endNode;
 
-        while(currentNode != startNode)
+        while (currentNode != startNode)
         {
             path.Add(currentNode);
             currentNode = currentNode.parent;
         }
-        path.Reverse();
+        path.Add(startNode);
+        Vector3[] waypoints = simplifyPath(path);
 
-        return path;
+        return waypoints;
+    }
+
+    private static Vector3[] simplifyPath(List<Node> path)
+    {
+        List<Vector3> waypoints = new List<Vector3>();
+        
+        //Add end point
+        waypoints.Add(path[0].worldPos);
+        Vector2 directionOld = new Vector2(path[0].x, path[0].y);
+
+        for (int i = 1; i < path.Count-1; i++)
+        {
+            Vector2 directionCurrent = new Vector2(path[i].x, path[i].y);
+            Vector2 directionNext = new Vector2(path[i + 1].x, path[i + 1].y);
+
+            if (directionNext.x != directionOld.x && directionNext.y != directionOld.y)
+            {
+                waypoints.Add(path[i].worldPos);
+            }
+
+            directionOld = directionCurrent;
+        }
+
+        waypoints.Reverse();
+        return waypoints.ToArray();
     }
 
 }
