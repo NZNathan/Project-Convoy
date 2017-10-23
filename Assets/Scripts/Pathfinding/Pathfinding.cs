@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 public class Pathfinding : MonoBehaviour {
 
@@ -9,43 +10,38 @@ public class Pathfinding : MonoBehaviour {
 
     private void Update()
     {
-        FindPath(seeker.position, target.position);
+        if(Input.GetButtonDown("Jump"))
+            FindPath(seeker.position, target.position);
     }
 
 
 
     private void FindPath(Vector3 startPos, Vector3 endPos)
     {
+        //DEBUG
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         Node startNode = GridManager.instance.NodeFromWorldPoint(startPos);
         Node endNode = GridManager.instance.NodeFromWorldPoint(endPos);
 
-        List<Node> openSet = new List<Node>();
+        Heap<Node> openSet = new Heap<Node>(GridManager.instance.maxGridSize);
         HashSet<Node> closedSet = new HashSet<Node>();
 
         openSet.Add(startNode);
 
         while(openSet.Count > 0)
         {
-            Node currentNode = openSet[0];
-
-            for(int i = 1; i < openSet.Count; i++)
-            {
-                if(openSet[i].fCost < currentNode.fCost || (openSet[i].fCost == currentNode.fCost && openSet[i].hCost < currentNode.hCost))
-                {
-                    currentNode = openSet[i];
-                }
-            }
-
-            //Remove nxet point in pat hfrom the openset
-            openSet.Remove(currentNode);
+            Node currentNode = openSet.RemoveFirst();
             closedSet.Add(currentNode);
 
             //If at goal, then stop pathfinding
-            if(currentNode == endNode)
+            if (currentNode == endNode)
             {
                 retracePath(startNode, endNode);
+                sw.Stop();
+                UnityEngine.Debug.Log("Path found " + sw.ElapsedMilliseconds + "ms");
                 return;
-            }
+            }      
 
             foreach (Node neighbour in GridManager.instance.getNeighbours(currentNode))
             {
@@ -64,6 +60,8 @@ public class Pathfinding : MonoBehaviour {
 
                     if (!openSet.Contains(neighbour))
                         openSet.Add(neighbour);
+                    else
+                        openSet.UpdateItem(neighbour);
                 }
             }
         }

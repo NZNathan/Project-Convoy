@@ -23,6 +23,7 @@ public class GridManager : MonoBehaviour {
     public int gridWidth = 1;
     [Range(1, 99)]
     public int gridHeight = 1;
+    public int maxGridSize;
 
     private void Start()
     {
@@ -55,6 +56,7 @@ public class GridManager : MonoBehaviour {
 
         //Create new 2d array of nodes
         grid = new Node[gridWidth, gridHeight];
+        maxGridSize = gridWidth * gridHeight;
 
         //Create new grid
         for (int x = 0; x < gridWidth; x++)
@@ -67,8 +69,8 @@ public class GridManager : MonoBehaviour {
                 grid[x, y] = new Node(walkable, worldPoint, x, y);
 
                 //Set up physical grid object to visualize grid in game
-                GameObject square = Instantiate(gridSquare, worldPoint, Quaternion.identity, transform); //0.01f to stick above road
-                square.transform.localScale = new Vector3(tileSize, 1, tileSize);
+                //GameObject square = Instantiate(gridSquare, worldPoint, Quaternion.identity, transform); //0.01f to stick above road
+                //square.transform.localScale = new Vector3(tileSize, 1, tileSize);
             }
         }
     }
@@ -159,8 +161,6 @@ public class GridManager : MonoBehaviour {
     public List<Node> path;
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
-
         if(grid != null)
         {
             foreach (Node n in grid)
