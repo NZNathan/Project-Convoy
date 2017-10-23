@@ -8,7 +8,8 @@ public class Moveable : MonoBehaviour {
     public float movespeed = 0.1f;
 
     //Positioning Variables
-    private Vector3 targetPos;
+    private Node[] targetPositions;
+    private int pathIndex = 0;
     private float snapRange = 0.05f;
     private float turnAngle = 20f;
 
@@ -19,6 +20,16 @@ public class Moveable : MonoBehaviour {
     /// <param name="targetPos"></param>
 	public void moveToGird(Vehicle vehicle)
     {
+        //If no path to follow
+        if(targetPositions.Length == 0)
+        {
+            vehicle.setMoving(false);
+            return;
+        }
+
+        //Get current point in the path
+        Vector3 targetPos = targetPositions[pathIndex].worldPos;
+
         //Angle vehicle to turn
         setAngle(vehicle);
 
@@ -31,8 +42,17 @@ public class Moveable : MonoBehaviour {
         //Check to see if reached targetPosition
         if ((targetPos - vehicle.transform.position).magnitude < snapRange)
         {
-            //GridManager.instance.setWalkable(targetPos, false);
-            snapPosition(vehicle, targetPos);
+            
+            pathIndex++;
+            if (pathIndex == targetPositions.Length)
+            {
+                //stop moving if reached goal
+                vehicle.setMoving(false);
+                //Snap to the goal square
+                snapPosition(vehicle, targetPos);
+                //Update grid square to be impassable
+                GridManager.instance.setWalkable(targetPos, false);
+            }
         }
     }
 
@@ -43,6 +63,9 @@ public class Moveable : MonoBehaviour {
     /// <param name="targetPos"></param>
     public void setAngle(Vehicle vehicle)
     {
+        //Get current point in the path
+        Vector3 targetPos = targetPositions[pathIndex].worldPos;
+
         //Turning right
         if (targetPos.x > vehicle.transform.position.x + 0.1f)
         { 
@@ -68,6 +91,10 @@ public class Moveable : MonoBehaviour {
                 vehicle.transform.eulerAngles = new Vector3(0, -turnAngle, 0);
             }
         }
+        else
+        {
+            vehicle.transform.eulerAngles = new Vector3(0, 0, 0);
+        }
     }
 
     /// <summary>
@@ -89,6 +116,20 @@ public class Moveable : MonoBehaviour {
 
     public void setTargetPosition(Vector3 newPosition)
     {
-        targetPos = newPosition;
+        Vector3 startPoint = GridManager.instance.snapToGrid(transform.position);
+        Vector3 endPoint = GridManager.instance.snapToGrid(newPosition);
+
+        List<Node> path = Pathfinding.FindPath(startPoint, endPoint);
+
+        if (path != null)
+        {
+            GridManager.instance.setWalkable(startPoint, true);
+            targetPositions = path.ToArray();
+            pathIndex = 0;
+        }
+        else
+        {
+            targetPositions = new Node[0];
+        }
     }
 }

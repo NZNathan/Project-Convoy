@@ -5,22 +5,12 @@ using System.Diagnostics;
 
 public class Pathfinding : MonoBehaviour {
 
-    public Transform seeker;
-    public Transform target;
-
-    private void Update()
-    {
-        if(Input.GetButtonDown("Jump"))
-            FindPath(seeker.position, target.position);
-    }
-
-
-
-    private void FindPath(Vector3 startPos, Vector3 endPos)
+    public static List<Node> FindPath(Vector3 startPos, Vector3 endPos)
     {
         //DEBUG
         Stopwatch sw = new Stopwatch();
         sw.Start();
+
         Node startNode = GridManager.instance.NodeFromWorldPoint(startPos);
         Node endNode = GridManager.instance.NodeFromWorldPoint(endPos);
 
@@ -37,10 +27,10 @@ public class Pathfinding : MonoBehaviour {
             //If at goal, then stop pathfinding
             if (currentNode == endNode)
             {
-                retracePath(startNode, endNode);
                 sw.Stop();
                 UnityEngine.Debug.Log("Path found " + sw.ElapsedMilliseconds + "ms");
-                return;
+                GridManager.instance.path = retracePath(startNode, endNode);
+                return retracePath(startNode, endNode);
             }      
 
             foreach (Node neighbour in GridManager.instance.getNeighbours(currentNode))
@@ -65,9 +55,12 @@ public class Pathfinding : MonoBehaviour {
                 }
             }
         }
+
+        //No path
+        return null;
     }
 
-    private void retracePath(Node startNode, Node endNode)
+    private static List<Node> retracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
         Node currentNode = endNode;
@@ -79,17 +72,7 @@ public class Pathfinding : MonoBehaviour {
         }
         path.Reverse();
 
-        GridManager.instance.path = path;
+        return path;
     }
 
-    private int getDistance(Node nodeA, Node nodeB)
-    {
-        int distX = Mathf.Abs(nodeA.x - nodeB.x);
-        int distY = Mathf.Abs(nodeA.y - nodeB.y);
-
-        if (distX > distY)
-            return 14 * distY + 10 * (distX - distY);
-        else
-            return 14 * distX + 10 * (distY - distX);
-    }
 }

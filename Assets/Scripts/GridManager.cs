@@ -107,6 +107,29 @@ public class GridManager : MonoBehaviour {
     }
 
     /// <summary>
+    /// Takes a point and rounds it to the nearest odd number
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    public float snapToGrid(float point)
+    {
+        point = point - (point %tileSize);
+
+        if (Mathf.Floor(point) % tileSize == 1)
+            return Mathf.Floor(point);
+
+        //If point alreadyon the grid return it as a int
+        return Mathf.Ceil(point) + 1;
+    }
+
+    public Vector3 snapToGrid(Vector3 point)
+    {
+        Vector3 gridPoint = new Vector3(GridManager.instance.snapToGrid(point.x), 0f, GridManager.instance.snapToGrid(point.z));
+
+        return gridPoint;
+    }
+
+    /// <summary>
     /// Gets the node at the world point spceified
     /// </summary>
     /// <param name="worldPoint"></param>
@@ -135,13 +158,13 @@ public class GridManager : MonoBehaviour {
     {
         List<Node> neighbours = new List<Node>();
 
-        //Search in a 3x3 square to get all 8 neighbours of the node
+        //Search in a 3x3 square to get 4 neighbours of the node
         for(int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
             {
                 //Skip middle node as this is the passed in node
-                if (x == 0 && y == 0)
+                if ((x == 0 && y == 0) || ((x == -1 || x == 1) && y != 0) )
                     continue;
 
                 int checkX = node.x + x;

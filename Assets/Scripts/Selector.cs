@@ -85,7 +85,7 @@ public class Selector : MonoBehaviour {
                 return new Vector3(-1, -1, -1); ;
 
             //Round point to a grid location
-            Vector3 gridPoint = new Vector3(snapToGird(ground.x), 0f, snapToGird(ground.z));
+            Vector3 gridPoint = GridManager.instance.snapToGrid(ground);
 
             return gridPoint;
             //DEBUG
@@ -153,22 +153,6 @@ public class Selector : MonoBehaviour {
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Takes a point and rounds it to the nearest odd number
-    /// </summary>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    private float snapToGird(float point)
-    {
-        point = point - (point % GridManager.instance.tileSize);
-
-        if (Mathf.Floor(point) % GridManager.instance.tileSize == 1)
-            return Mathf.Floor(point);
-
-        //If point alreadyon the grid return it as a int
-        return Mathf.Ceil(point) +1;
     }
 
     private void getInput()
