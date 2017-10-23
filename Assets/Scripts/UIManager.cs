@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour {
     {
         VehicleUI vehicleUI = Instantiate(baseVehicleUI, transform);
 
-        vehicleUI.setVehicle(vehicle.transform);
+        vehicleUI.setVehicle(vehicle);
 
         return vehicleUI;
     }

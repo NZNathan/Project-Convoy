@@ -60,6 +60,16 @@ public class Vehicle : Pauseable {
         Destroy(this.gameObject);
     }
 
+    private void OnMouseEnter()
+    {
+        vehicleUI.setActive(true);
+    }
+
+    private void OnMouseExit()
+    {
+        vehicleUI.setActive(false);
+    }
+
     #region Getters & Setters
 
     //GETTERS
@@ -76,6 +86,11 @@ public class Vehicle : Pauseable {
     public bool isCombatable()
     {
         return combatable;
+    }
+
+    public int getHealth()
+    {
+        return health;
     }
 
     //SETTERS

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class VehicleUI : MonoBehaviour {
@@ -8,10 +9,14 @@ public class VehicleUI : MonoBehaviour {
 
     public GameObject uiWrapper;
 
+    //UI Components
+    public Text nameText;
+    public Text healthText;
+
     [Header("Positioning")]
     public float xOffest = 0;
     public float yOffeset = 0;
-    private Transform vehicle;
+    private Vehicle vehicle;
 
     private void Start()
     {
@@ -22,7 +27,7 @@ public class VehicleUI : MonoBehaviour {
         uiWrapper.SetActive(false);
     }
 
-    public void setVehicle(Transform vehicle)
+    public void setVehicle(Vehicle vehicle)
     {
         this.vehicle = vehicle;
     }
@@ -39,10 +44,14 @@ public class VehicleUI : MonoBehaviour {
         {
             float yBounds = vehicle.GetComponent<Collider>().bounds.size.y;
 
-            Vector3 vehiclePos = vehicle.position;
+            Vector3 vehiclePos = vehicle.transform.position;
             Vector3 uiPos = CameraController.activeCamera.WorldToScreenPoint(new Vector3(vehiclePos.x + xOffest, vehiclePos.y + yBounds + yOffeset, vehiclePos.z)); //TODO: Set it to be above the vehicle
 
             transform.position = uiPos;
+
+            //Update Stats TODO: optimize so only set when it changes
+            nameText.text = vehicle.name;
+            healthText.text = "Health: " + vehicle.getHealth();
         }
     }
 }
