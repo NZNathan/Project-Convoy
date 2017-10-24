@@ -12,6 +12,9 @@ public class Vehicle : Pauseable {
     protected Rigidbody rb;
     private Moveable movement;
 
+    //Raycast offest
+    public static Vector3 rayOffest = new Vector3(0f, 0.45f, 0f);
+
     //UI
     protected VehicleUI vehicleUI;
 

@@ -48,9 +48,23 @@ public class Combatable : MonoBehaviour {
     #region Getters & Setters
 
     //SETTERS
+    /// <summary>
+    /// Sets the attack target to the target, if there is line of sight
+    /// </summary>
+    /// <param name="target"></param>
     public void setAttackTarget(Vehicle target)
     {
-        attackTarget = target;
+        //Ray variables
+        RaycastHit hit;
+        Vector3 direction = transform.position - target.transform.position;
+        float dist = Vector3.Distance(transform.position, target.transform.position);
+
+        Debug.DrawLine(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, Color.blue, 50);
+
+        if (!Physics.Linecast(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, out hit) || hit.collider.gameObject == target.gameObject)
+        {
+            attackTarget = target;
+        }
     }
 
     //GETTERS
