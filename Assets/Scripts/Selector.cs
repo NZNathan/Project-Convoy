@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ActionType { NORMAL, ATTACK, RAM };
+
 public class Selector : MonoBehaviour {
 
     //Current object that is selected

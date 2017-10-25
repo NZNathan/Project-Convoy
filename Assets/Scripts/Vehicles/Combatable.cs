@@ -19,20 +19,23 @@ public class Combatable : MonoBehaviour {
 
     public void attack(CombatVehicle vehicle)
     {
-        if (attackTarget != null && !attackTarget.isDead())
+        if (attackTarget != null && !attackTarget.isDead()) 
         {
             aimAtTarget(vehicle);
 
-            //If able to attack because of attack delay
-            if(lastAttack + attackDelay < TimeManager.instance.getTime())
+            if (checkLineOfSight(attackTarget))//Check line of sight before every shot?
             {
-                //Reset last attack time
-                lastAttack = TimeManager.instance.getTime();
+                //If able to attack because of attack delay
+                if (lastAttack + attackDelay < TimeManager.instance.getTime())
+                {
+                    //Reset last attack time
+                    lastAttack = TimeManager.instance.getTime();
 
-                //Create and setup bullet
-                Vector3 spawnPos = new Vector3(transform.position.x, turretHeight, transform.position.z);
-                Bullet bullet = Instantiate(bulletType, spawnPos + (vehicle.turret.transform.forward), Quaternion.identity);
-                bullet.setup(attackTarget.transform);
+                    //Create and setup bullet
+                    Vector3 spawnPos = new Vector3(transform.position.x, turretHeight, transform.position.z);
+                    Bullet bullet = Instantiate(bulletType, spawnPos + (vehicle.turret.transform.forward), Quaternion.identity);
+                    bullet.setup(attackTarget.transform);
+                }
             }
         }
     }
@@ -45,6 +48,22 @@ public class Combatable : MonoBehaviour {
         vehicle.turret.transform.LookAt(targetPosition);
     }
 
+    /// <summary>
+    /// Returns true if have clean line of sight to the target
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    private bool checkLineOfSight(Vehicle target)
+    {
+        //Ray variables
+        RaycastHit hit;
+
+        Debug.DrawLine(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, Color.blue, 50);
+
+        //Return true if the raycast hits no objects or only hits the target
+        return (!Physics.Linecast(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, out hit) || hit.collider.gameObject == target.gameObject);
+    }
+
     #region Getters & Setters
 
     //SETTERS
@@ -54,14 +73,7 @@ public class Combatable : MonoBehaviour {
     /// <param name="target"></param>
     public void setAttackTarget(Vehicle target)
     {
-        //Ray variables
-        RaycastHit hit;
-        Vector3 direction = transform.position - target.transform.position;
-        float dist = Vector3.Distance(transform.position, target.transform.position);
-
-        Debug.DrawLine(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, Color.blue, 50);
-
-        if (!Physics.Linecast(transform.position + Vehicle.rayOffest, target.transform.position + Vehicle.rayOffest, out hit) || hit.collider.gameObject == target.gameObject)
+        if (checkLineOfSight(target))
         {
             attackTarget = target;
         }
