@@ -97,7 +97,13 @@ public class Moveable : MonoBehaviour {
         }
     }
 
-    public void movePosition(Vehicle vehicle, int direction)
+    /// <summary>
+    /// Moves the vehicle one square in any direction (1 = Left, 2 = Right 3 = Forward, 4 = Back) returns true on a successful move
+    /// </summary>
+    /// <param name="vehicle"></param>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    public bool movePosition(Vehicle vehicle, int direction, bool check = true)
     {
         targetPositions = new Vector3[1];
         Vector3 movePosition = GridManager.instance.snapToGrid(transform.position);
@@ -116,13 +122,15 @@ public class Moveable : MonoBehaviour {
             movePosition = new Vector3(movePosition.x, movePosition.y, movePosition.z - GridManager.instance.tileSize);
 
         //Only move if space is empty
-        if (Selector.gridSpaceEmpty(movePosition))
+        if (Selector.gridSpaceEmpty(movePosition) || !check)
         {
             vehicle.setMoving(true);
             GridManager.instance.setWalkable(transform.position, true);
             targetPositions[0] = movePosition;
             pathIndex = 0;
+            return true;
         }
+        return false;
     }
 
     /// <summary>

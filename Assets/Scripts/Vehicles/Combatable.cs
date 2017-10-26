@@ -5,6 +5,7 @@ using UnityEngine;
 public class Combatable : MonoBehaviour {
 
     private Vehicle attackTarget;
+    public bool attackTrigger = false;
     public float attackDelay = 3f;
     private float lastAttack = -55f;
 
@@ -32,7 +33,7 @@ public class Combatable : MonoBehaviour {
                     lastAttack = TimeManager.instance.getTime();
 
                     
-                    ramAttack(vehicle);
+                    StartCoroutine(ramAttack(vehicle));
                     return;
 
                     //Create and setup bullet
@@ -44,7 +45,7 @@ public class Combatable : MonoBehaviour {
         }
     }
 
-    private void ramAttack(CombatVehicle vehicle)
+    private IEnumerator ramAttack(CombatVehicle vehicle)
     {
         if (attackTarget != null && !attackTarget.isDead())
         {
@@ -65,11 +66,19 @@ public class Combatable : MonoBehaviour {
 
             vehicle.getAnimator().SetInteger("ram", ramDirection);
 
-            if (checkLineOfSight(attackTarget))//Check line of sight before every shot?
+            while (!attackTrigger)
             {
-                attackTarget.getMovement().movePosition(attackTarget, ramDirection);
-                attackTarget.takeDamage(1);
+                yield return new WaitForSeconds(0.1f);
             }
+
+            attackTrigger = false;
+
+            //If target moves, follow them over
+            if(attackTarget.getMovement().movePosition(attackTarget, ramDirection))
+            {
+                vehicle.getMovement().movePosition(vehicle, ramDirection, false);
+            }
+            attackTarget.takeDamage(1);
         }
     }
 
