@@ -97,6 +97,34 @@ public class Moveable : MonoBehaviour {
         }
     }
 
+    public void movePosition(Vehicle vehicle, int direction)
+    {
+        targetPositions = new Vector3[1];
+        Vector3 movePosition = GridManager.instance.snapToGrid(transform.position);
+
+        //Move left
+        if (direction == 1)
+            movePosition = new Vector3(movePosition.x - GridManager.instance.tileSize, movePosition.y, movePosition.z);
+        //Move right
+        else if (direction == 2)
+            movePosition = new Vector3(movePosition.x + GridManager.instance.tileSize, movePosition.y, movePosition.z);
+        //Move forward
+        else if (direction == 3)
+            movePosition = new Vector3(movePosition.x, movePosition.y, movePosition.z + GridManager.instance.tileSize);
+        //Move backward
+        else if (direction == 4)
+            movePosition = new Vector3(movePosition.x, movePosition.y, movePosition.z - GridManager.instance.tileSize);
+
+        //Only move if space is empty
+        if (Selector.gridSpaceEmpty(movePosition))
+        {
+            vehicle.setMoving(true);
+            GridManager.instance.setWalkable(transform.position, true);
+            targetPositions[0] = movePosition;
+            pathIndex = 0;
+        }
+    }
+
     /// <summary>
     /// Snap the vehicle to the target position and set moving to false for the vehicle
     /// </summary>

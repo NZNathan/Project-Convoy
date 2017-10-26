@@ -9,6 +9,7 @@ using UnityEngine;
 public class Vehicle : Pauseable {
 
     //Components
+    protected Animator animator;
     protected Rigidbody rb;
     private Moveable movement;
 
@@ -33,6 +34,7 @@ public class Vehicle : Pauseable {
 	public void Start ()
     {
         //Get Components
+        animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody>();
         movement = GetComponent<Moveable>();
 
@@ -94,6 +96,16 @@ public class Vehicle : Pauseable {
     public int getHealth()
     {
         return health;
+    }
+
+    public Moveable getMovement()
+    {
+        return movement;
+    }
+
+    public Animator getAnimator()
+    {
+        return animator;
     }
 
     //SETTERS

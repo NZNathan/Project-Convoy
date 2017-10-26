@@ -31,11 +31,44 @@ public class Combatable : MonoBehaviour {
                     //Reset last attack time
                     lastAttack = TimeManager.instance.getTime();
 
+                    
+                    ramAttack(vehicle);
+                    return;
+
                     //Create and setup bullet
                     Vector3 spawnPos = new Vector3(transform.position.x, turretHeight, transform.position.z);
                     Bullet bullet = Instantiate(bulletType, spawnPos + (vehicle.turret.transform.forward), Quaternion.identity);
                     bullet.setup(attackTarget.transform);
                 }
+            }
+        }
+    }
+
+    private void ramAttack(CombatVehicle vehicle)
+    {
+        if (attackTarget != null && !attackTarget.isDead())
+        {
+            int ramDirection = 0;
+
+            //Move left
+            if (attackTarget.transform.position.x < transform.position.x)
+                ramDirection = 1;
+            //Move right
+            else if (attackTarget.transform.position.x > transform.position.x)
+                ramDirection = 2;
+            //Move forward
+            else if (attackTarget.transform.position.z > transform.position.z)
+                ramDirection = 3;
+            //Move backward
+            else if (attackTarget.transform.position.z < transform.position.z)
+                ramDirection = 4;
+
+            vehicle.getAnimator().SetInteger("ram", ramDirection);
+
+            if (checkLineOfSight(attackTarget))//Check line of sight before every shot?
+            {
+                attackTarget.getMovement().movePosition(attackTarget, ramDirection);
+                attackTarget.takeDamage(1);
             }
         }
     }

@@ -9,9 +9,9 @@ public class Selector : MonoBehaviour {
     //Current object that is selected
     private Vehicle selected;
 
-    private int selectableMask;
+    private static int selectableMask;
     //Mask to use to raycast to the ground
-    private int groundMask;
+    private static int groundMask;
 
     // Use this for initialization
     void Start()
@@ -131,7 +131,7 @@ public class Selector : MonoBehaviour {
         }
     }
 
-    public bool gridSpaceEmpty(Vector3 gridPosition)
+    public static bool gridSpaceEmpty(Vector3 gridPosition)
     {
         Debug.DrawRay(gridPosition, Vector3.up * 5, Color.red, 50);
 
