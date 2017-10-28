@@ -32,6 +32,11 @@ public class CombatVehicle : Vehicle {
         combatType.setAttackTarget(target);
     }
 
+    //GETTERS
+    public Combatable getCombat()
+    {
+        return combatType;
+    }
     #endregion
 
     // Update is called once per frame

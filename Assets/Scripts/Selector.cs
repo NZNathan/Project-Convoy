@@ -13,6 +13,9 @@ public class Selector : MonoBehaviour {
     //Mask to use to raycast to the ground
     private static int groundMask;
 
+    //Current select type 
+    private bool abilityTargetSelect = false;
+
     // Use this for initialization
     void Start()
     {
@@ -33,7 +36,22 @@ public class Selector : MonoBehaviour {
         //Only update selected if the new selected is not null
         if (newSelect != null)
         {
-            selected = newSelect;
+            //Select new vehicle, or if in ability mode, target it with the ability
+            if (abilityTargetSelect)
+            {
+                ((CombatVehicle)selected).getCombat().ramAttack((CombatVehicle)selected, newSelect);
+                abilityTargetSelect = false;
+            }
+            else
+            {
+                selected = newSelect;
+                UIManager.instance.toggleSelectedUI(true, selected);
+            }
+        }
+        else if (!abilityTargetSelect)
+        {
+            selected = null;
+            UIManager.instance.toggleSelectedUI(false, null);
         }
     }
 
@@ -98,8 +116,18 @@ public class Selector : MonoBehaviour {
         return new Vector3(-1,-1,-1);
     }
 
+    /// <summary>
+    /// Called upon a right click
+    /// </summary>
     private void takeAction()
     {
+        //If in ability select mode then cancel that and return
+        if (abilityTargetSelect)
+        {
+            abilityTargetSelect = false;
+            return;
+        }
+
         //If there is no current selected vehicle then can't take an action
         if (selected != null && !selected.isDead())
         {
@@ -157,6 +185,11 @@ public class Selector : MonoBehaviour {
         return null;
     }
 
+    public void setAbilitySelect(bool value)
+    {
+        abilityTargetSelect = value;
+    }
+
     private void getInput()
     {
         bool leftClick = Input.GetMouseButtonDown(0);
@@ -171,7 +204,10 @@ public class Selector : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        getInput();
+        if (!UIManager.cursorOnUI())
+        {
+            getInput();
+        }
     }
 }
 

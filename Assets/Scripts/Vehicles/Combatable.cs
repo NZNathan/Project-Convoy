@@ -18,6 +18,10 @@ public class Combatable : MonoBehaviour {
 		
 	}
 
+    /// <summary>
+    /// The basic attack of a combat vehicle, called every frame by the combat vehicle
+    /// </summary>
+    /// <param name="vehicle"></param>
     public void attack(CombatVehicle vehicle)
     {
         if (attackTarget != null && !attackTarget.isDead()) 
@@ -32,10 +36,6 @@ public class Combatable : MonoBehaviour {
                     //Reset last attack time
                     lastAttack = TimeManager.instance.getTime();
 
-                    
-                    StartCoroutine(ramAttack(vehicle));
-                    return;
-
                     //Create and setup bullet
                     Vector3 spawnPos = new Vector3(transform.position.x, turretHeight, transform.position.z);
                     Bullet bullet = Instantiate(bulletType, spawnPos + (vehicle.turret.transform.forward), Quaternion.identity);
@@ -45,23 +45,28 @@ public class Combatable : MonoBehaviour {
         }
     }
 
-    private IEnumerator ramAttack(CombatVehicle vehicle)
+    public void ramAttack(CombatVehicle vehicle, Vehicle target)
     {
-        if (attackTarget != null && !attackTarget.isDead())
+        StartCoroutine(ram(vehicle, target));
+    }
+
+    private IEnumerator ram(CombatVehicle vehicle, Vehicle target)
+    {
+        if (target != null && !target.isDead())
         {
             int ramDirection = 0;
 
             //Move left
-            if (attackTarget.transform.position.x < transform.position.x)
+            if (target.transform.position.x < transform.position.x)
                 ramDirection = 1;
             //Move right
-            else if (attackTarget.transform.position.x > transform.position.x)
+            else if (target.transform.position.x > transform.position.x)
                 ramDirection = 2;
             //Move forward
-            else if (attackTarget.transform.position.z > transform.position.z)
+            else if (target.transform.position.z > transform.position.z)
                 ramDirection = 3;
             //Move backward
-            else if (attackTarget.transform.position.z < transform.position.z)
+            else if (target.transform.position.z < transform.position.z)
                 ramDirection = 4;
 
             vehicle.getAnimator().SetInteger("ram", ramDirection);
@@ -74,11 +79,11 @@ public class Combatable : MonoBehaviour {
             attackTrigger = false;
 
             //If target moves, follow them over
-            if(attackTarget.getMovement().movePosition(attackTarget, ramDirection))
+            if(target.getMovement().movePosition(target, ramDirection))
             {
                 vehicle.getMovement().movePosition(vehicle, ramDirection, false);
             }
-            attackTarget.takeDamage(1);
+            target.takeDamage(1);
         }
     }
 
